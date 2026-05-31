@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WILDERNESS — Step Into the Living Forest</title>
+<meta name="description" content="WILDERNESS — a nature brand for those who go where the map ends." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- Bebas Neue = tall condensed display for the blend-mode headline. Fraunces = characterful serif accents. Manrope = clean body. -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<!-- Splitting.js: title arrives letter by letter -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/splitting/1.0.6/splitting.css" />
+
+<style>
+:root{
+  --ink:#f3f1ea;
+  --ink-dim:#b9b4a6;
+  --moss:#6e8b3d;
+  --moss-bright:#a7c957;
+  --bark:#0c0f08;
+  --maxw:1280px;
+  /* one fluid type scale — clamp() means ZERO media queries for type */
+  --fs-hero:clamp(4rem, 18vw, 17rem);
+  --fs-h2:clamp(2.2rem, 6vw, 5rem);
+  --fs-lead:clamp(1rem, 1.6vw, 1.35rem);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bark);
+  color:var(--ink);
+  font-family:"Manrope",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+
+/* ---------- HERO (pinned by ScrollTrigger) ---------- */
+.hero{
+  position:relative;
+  height:100svh;
+  width:100%;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+}
+/* Living CSS forest — animates behind the video so the hero is NEVER blank,
+   even if a video URL fails to load. Drifting light + canopy sway. */
+.hero__fallback{
+  position:absolute; inset:0; z-index:0;
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgba(167,201,87,.18), transparent 60%),
+    radial-gradient(50% 60% at 85% 10%, rgba(110,139,61,.22), transparent 65%),
+    linear-gradient(180deg, #16280f 0%, #0e1c0a 45%, #060b04 100%);
+}
+.hero__fallback::before{ /* sun shafts drifting */
+  content:""; position:absolute; inset:-20%;
+  background:repeating-linear-gradient(105deg,
+    rgba(255,255,240,.06) 0px, rgba(255,255,240,.06) 2px,
+    transparent 2px, transparent 60px);
+  animation:shafts 18s linear infinite;
+}
+.hero__fallback::after{ /* soft canopy blobs swaying */
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(40% 30% at 30% 20%, rgba(20,40,15,.9), transparent 70%),
+    radial-gradient(45% 35% at 75% 25%, rgba(15,30,10,.9), transparent 70%),
+    radial-gradient(50% 40% at 50% 80%, rgba(10,22,7,.95), transparent 75%);
+  animation:sway 12s ease-in-out infinite alternate;
+}
+@keyframes shafts{ from{transform:translateX(-60px)} to{transform:translateX(60px)} }
+@keyframes sway{ from{transform:scale(1.02) translateY(0)} to{transform:scale(1.05) translateY(-10px)} }
+.hero__video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:0;
+}
+/* linear-gradient overlay = text readable at any screen brightness */
+.hero__scrim{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:
+    linear-gradient(180deg, rgba(8,10,6,.55) 0%, rgba(8,10,6,.15) 35%, rgba(8,10,6,.45) 75%, rgba(8,10,6,.85) 100%),
+    radial-gradient(120% 80% at 50% 40%, rgba(0,0,0,0) 40%, rgba(8,10,6,.5) 100%);
+}
+
+/* The blend-mode wordmark: white text knocks through the footage in ONE line.
+   A white panel + mix-blend-mode:screen lets the video glow through the letters. */
+.wordmark{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  padding:0 4vw;
+}
+.wordmark__title{
+  font-family:"Bebas Neue", sans-serif;
+  font-size:var(--fs-hero);
+  line-height:.82;
+  letter-spacing:.02em;
+  color:#fff;
+  mix-blend-mode:overlay;        /* the one-line magic: text fuses with photography */
+  text-transform:uppercase;
+  filter:drop-shadow(0 2px 30px rgba(0,0,0,.35));
+}
+/* a second, faint solid copy sits behind for legibility on bright frames */
+.wordmark__ghost{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-family:"Bebas Neue", sans-serif;
+  font-size:var(--fs-hero);
+  line-height:.82;
+  letter-spacing:.02em;
+  color:rgba(255,255,255,.14);
+  text-transform:uppercase;
+  z-index:-1;
+  pointer-events:none;
+}
+/* Splitting.js per-char entrance */
+.wordmark__title .char{
+  display:inline-block;
+  opacity:0;
+  transform:translateY(.5em) rotate(6deg);
+  animation:charIn .7s cubic-bezier(.2,.7,.2,1) forwards;
+  animation-delay:calc(60ms * var(--char-index));
+}
+@keyframes charIn{ to{ opacity:1; transform:none } }
+
+.hero__sub{
+  position:relative;
+  z-index:2;
+  margin-top:clamp(1rem,2.5vw,2rem);
+  font-family:"Fraunces", serif;
+  font-style:italic;
+  font-size:var(--fs-lead);
+  color:var(--ink);
+  opacity:0;
+  animation:fadeUp 1s ease forwards 1.3s;
+  text-shadow:0 2px 18px rgba(0,0,0,.6);
+}
+.hero__cta{
+  position:relative;
+  z-index:2;
+  margin-top:clamp(1.4rem,3vw,2.4rem);
+  display:inline-flex;
+  align-items:center;
+  gap:.7rem;
+  padding:.85rem 1.6rem;
+  border:1px solid rgba(255,255,255,.5);
+  border-radius:100px;
+  font-size:.85rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  backdrop-filter:blur(4px);
+  opacity:0;
+  animation:fadeUp 1s ease forwards 1.55s;
+  transition:background .3s ease, color .3s ease, border-color .3s ease;
+}
+.hero__cta:hover{ background:#fff; color:var(--bark); border-color:#fff }
+
+.scroll-hint{
+  position:absolute;
+  bottom:clamp(1.2rem,3vh,2.4rem);
+  left:50%;
+  transform:translateX(-50%);
+  z-index:2;
+  font-size:.7rem;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  opacity:0;
+  animation:fadeUp 1s ease forwards 1.8s;
+}
+.scroll-hint span{ display:block; width:1px; height:40px; margin:.6rem auto 0; background:linear-gradient(var(--ink-dim), transparent); }
+
+@keyframes fadeUp{ from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:none} }
+
+/* ---------- OVERLAY CONTENT that scrolls OVER the pinned hero ---------- */
+.overlay{
+  position:relative;
+  z-index:5;
+  background:linear-gradient(180deg, transparent 0%, var(--bark) 18%, var(--bark) 100%);
+  margin-top:100svh;       /* start below the first viewport so hero shows first */
+  padding-top:1px;
+}
+.section{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:clamp(5rem,12vh,11rem) clamp(1.4rem,5vw,4rem);
+}
+.eyebrow{
+  font-size:.72rem;
+  letter-spacing:.34em;
+  text-transform:uppercase;
+  color:var(--moss-bright);
+  margin-bottom:1.4rem;
+}
+.section h2{
+  font-family:"Fraunces", serif;
+  font-weight:400;
+  font-size:var(--fs-h2);
+  line-height:1.02;
+  letter-spacing:-.01em;
+  max-width:18ch;
+}
+.section h2 em{ color:var(--moss-bright); font-style:italic }
+.section p.lead{
+  margin-top:1.8rem;
+  max-width:54ch;
+  font-size:var(--fs-lead);
+  line-height:1.7;
+  color:var(--ink-dim);
+  font-weight:300;
+}
+
+/* feature grid — auto-fit, no media queries */
+.grid{
+  margin-top:clamp(2.5rem,6vw,4.5rem);
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  gap:clamp(1rem,2.5vw,2rem);
+}
+.card{
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:18px;
+  padding:clamp(1.6rem,3vw,2.4rem);
+  background:rgba(255,255,255,.02);
+  transition:transform .4s cubic-bezier(.2,.7,.2,1), border-color .4s, background .4s;
+}
+.card:hover{ transform:translateY(-6px); border-color:rgba(167,201,87,.5); background:rgba(167,201,87,.05) }
+.card .num{ font-family:"Bebas Neue",sans-serif; font-size:2.4rem; color:var(--moss); line-height:1 }
+.card h3{ margin:.8rem 0 .6rem; font-size:1.25rem; font-weight:600 }
+.card p{ color:var(--ink-dim); font-weight:300; line-height:1.65; font-size:.96rem }
+
+/* second blend-mode band — image strip with knockout text */
+.band{
+  position:relative;
+  height:clamp(40vh,60vh,70vh);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:linear-gradient(180deg,#0e1c0a,#16280f 50%,#0e1c0a);
+}
+.band video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0 }
+.band::after{ content:""; position:absolute; inset:0; z-index:1;
+  background:linear-gradient(90deg, rgba(8,10,6,.6), rgba(8,10,6,.15), rgba(8,10,6,.6)); }
+.band h2{
+  position:relative; z-index:2;
+  font-family:"Bebas Neue",sans-serif;
+  font-size:clamp(3rem,12vw,11rem);
+  letter-spacing:.04em;
+  color:#fff;
+  mix-blend-mode:overlay;
+  text-align:center;
+}
+
+/* reveal-on-scroll utility (GSAP toggles .in) */
+.reveal{ opacity:0; transform:translateY(40px); transition:opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1) }
+.reveal.in{ opacity:1; transform:none }
+
+footer{
+  border-top:1px solid rgba(255,255,255,.08);
+  padding:clamp(3rem,8vh,6rem) clamp(1.4rem,5vw,4rem);
+  text-align:center;
+  color:var(--ink-dim);
+}
+footer .logo{ font-family:"Bebas Neue",sans-serif; font-size:2rem; letter-spacing:.1em; color:var(--ink) }
+footer .small{ margin-top:1rem; font-size:.8rem; letter-spacing:.05em }
+footer .credit{ margin-top:.6rem; color:#7d8a6b }
+footer .credit a{
+  color:var(--moss-bright);
+  border-bottom:1px solid transparent;
+  transition:border-color .25s ease, color .25s ease;
+}
+footer .credit a:hover{ border-color:var(--moss-bright); color:#c8e08a }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important }
+  .reveal{ opacity:1; transform:none }
+  .wordmark__title .char{ opacity:1; transform:none }
+  .hero__sub, .hero__cta, .scroll-hint{ opacity:1 }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ HERO (pinned) ============ -->
+<section class="hero" id="hero">
+  <!-- SWAP THE FOREST CLIP HERE: replace the src below with your own hosted .mp4
+       (e.g. a Coverr/Pexels download you re-host on Vercel/Netlify, or any direct mp4 link).
+       The animated CSS forest below shows instantly and stays visible until the video loads. -->
+  <div class="hero__fallback" aria-hidden="true"></div>
+  <video class="hero__video" id="heroVideo" autoplay muted loop playsinline preload="none"
+    data-src="https://cdn.coverr.co/videos/coverr-footpath-in-the-rainforest-9968/360p.mp4"></video>
+  <div class="hero__scrim"></div>
+
+  <div class="wordmark">
+    <div class="wordmark__ghost" aria-hidden="true">WILDERNESS</div>
+    <h1 class="wordmark__title" data-splitting>WILDERNESS</h1>
+    <p class="hero__sub">Go where the map ends.</p>
+    <a href="#story" class="hero__cta">Begin the trail</a>
+  </div>
+
+  <div class="scroll-hint">Scroll<span></span></div>
+</section>
+
+<!-- ============ OVERLAY (scrolls over pinned hero) ============ -->
+<div class="overlay">
+
+  <section class="section" id="story">
+    <p class="eyebrow reveal">Est. in the deep green</p>
+    <h2 class="reveal">Built for the people who<br /><em>still listen to forests.</em></h2>
+    <p class="lead reveal">WILDERNESS makes gear, guides, and quiet routes for those who'd rather be lost among the trees than found in a crowd. No noise. No shortcuts. Just the path and the canopy breathing above it.</p>
+  </section>
+
+  <section class="section">
+    <p class="eyebrow reveal">What we carry</p>
+    <div class="grid">
+      <div class="card reveal"><div class="num">01</div><h3>Trail-tested kit</h3><p>Everything we sell has walked further than most people drive. Repairable, recyclable, and built to outlive trends.</p></div>
+      <div class="card reveal"><div class="num">02</div><h3>Hidden routes</h3><p>Hand-mapped paths away from the trailhead crowds — shared slowly, only with members who tread lightly.</p></div>
+      <div class="card reveal"><div class="num">03</div><h3>Regeneration</h3><p>One percent of everything, and one tree planted for every order, funneled back into the forests we walk through.</p></div>
+      <div class="card reveal"><div class="num">04</div><h3>Field journal</h3><p>Stories, sounds, and seasonal field notes from rangers and wanderers across six continents of green.</p></div>
+    </div>
+  </section>
+
+  <!-- second blend-mode band -->
+  <section class="band">
+    <video id="bandVideo" autoplay muted loop playsinline preload="none"
+      data-src="https://cdn.coverr.co/videos/coverr-lush-green-mountain-pathway/360p.mp4"></video>
+    <h2>BREATHE IN</h2>
+  </section>
+
+  <section class="section">
+    <p class="eyebrow reveal">The invitation</p>
+    <h2 class="reveal">Step off the road.<br /><em>The trees are waiting.</em></h2>
+    <p class="lead reveal">Join the field list for new routes, seasonal gear drops, and the occasional reminder to go outside. We send little, and only when it matters.</p>
+    <a href="#" class="hero__cta reveal" style="margin-top:2rem; animation:none; opacity:1">Join the field list</a>
+  </section>
+
+  <footer>
+    <div class="logo">WILDERNESS</div>
+    <div class="small">Go where the map ends · © 2026</div>
+    <div class="small credit">
+      Designed &amp; published by
+      <a href="https://orbitailabs.in/" target="_blank" rel="noopener noreferrer">Orbit AI Labs</a>
+      · <a href="https://orbitailabs.in/" target="_blank" rel="noopener noreferrer">See more landing pages →</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/splitting/1.0.6/splitting.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+  // Splitting.js → wraps each letter in .char so the CSS stagger animation runs
+  if (window.Splitting) Splitting();
+
+  // ---- Lazy-load videos so they never block the initial page render ----
+  function loadVideo(v){
+    if (!v || v.dataset.loaded) return;
+    var src = v.getAttribute('data-src');
+    if (!src) return;
+    var s = document.createElement('source');
+    s.src = src; s.type = 'video/mp4';
+    v.appendChild(s);
+    v.load();
+    var p = v.play();
+    if (p && p.catch) p.catch(function(){}); // ignore autoplay rejections
+    v.dataset.loaded = '1';
+  }
+
+  window.addEventListener('load', function () {
+    // Hero video: kick off slightly after load so fonts/layout settle first
+    setTimeout(function(){ loadVideo(document.getElementById('heroVideo')); }, 150);
+
+    // Band video: only load when it's about to scroll into view
+    var band = document.getElementById('bandVideo');
+    if (band && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting){ loadVideo(band); io.disconnect(); }
+        });
+      }, { rootMargin: '300px' });
+      io.observe(band);
+    } else {
+      loadVideo(band);
+    }
+  });
+
+  window.addEventListener('load', function () {
+    if (!window.gsap || !window.ScrollTrigger) return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+
+    // PIN the hero while the overlay content scrolls up over it
+    ScrollTrigger.create({
+      trigger: '#hero',
+      start: 'top top',
+      end: '+=100%',
+      pin: true,
+      pinSpacing: false
+    });
+
+    // Subtle parallax + fade on the hero wordmark as you scroll past
+    gsap.to('.wordmark', {
+      yPercent: -30,
+      opacity: 0,
+      ease: 'none',
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+    });
+
+    // Reveal-on-scroll for everything tagged .reveal
+    gsap.utils.toArray('.reveal').forEach(function (el) {
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 85%',
+        onEnter: function () { el.classList.add('in'); },
+        once: true
+      });
+    });
+  });
+</script>
+</body>
+</html>
